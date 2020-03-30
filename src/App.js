@@ -7,6 +7,8 @@ import TaxesFees from './components/TaxesFees/TaxesFees';
 import EstimatedTotal from './components/EstimatedTotal/EstimatedTotal';
 import ItemDetails from './components/ItemDetails/ItemDetails';
 import PromoCodeDiscount from './components/PromoCode/PromoCode';
+import { connect } from 'react-redux';
+import { handleChange } from './actions/promoCodeActions';
 
 class App extends Component {
   constructor(props) {
@@ -16,7 +18,8 @@ class App extends Component {
       total: 100,
       pickupSavings: -3.85,
       taxes: 0,
-      estimatedTotal: 0
+      estimatedTotal: 0,
+      disablePromoButton: false
     };
   }
 
@@ -34,6 +37,19 @@ class App extends Component {
     );
   };
 
+  giveDiscountHandler = () => {
+    if (this.props.promoCode === 'DISCOUNT') {
+      this.setState(
+        { estimatedTotal: this.state.estimatedTotal * 0.9 },
+        function() {
+          this.setState({
+            disablePromoButton: true
+          });
+        }
+      );
+    }
+  };
+
   render() {
     return (
       <div className="container">
@@ -47,7 +63,7 @@ class App extends Component {
           <hr></hr>
           <PromoCodeDiscount
             giveDiscount={() => this.giveDiscountHandler()}
-            isDisabled={() => this.disablePromoButton()}
+            isDisabled={this.state.disablePromoButton}
           ></PromoCodeDiscount>
         </Container>
       </div>
@@ -55,4 +71,9 @@ class App extends Component {
   }
 }
 
-export default App;
+const mapStateToProps = state => ({
+  promoCode: state.promoCode.value
+});
+export default connect(mapStateToProps, {
+  handleChange
+})(App);
